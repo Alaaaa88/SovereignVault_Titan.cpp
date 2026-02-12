@@ -9,7 +9,7 @@
 In alignment with **Saudi Vision 2030**, digital sovereignty is not just about having data—it's about securing it with home-grown, ultra-fast technology. **Sovereign-Quantum-Vault** is a next-generation cryptographic engine designed to protect national assets against the future threat of Quantum Computing without sacrificing real-time performance.
 
 ## ⚡ Performance Breakthrough
-Standard Post-Quantum algorithms are computationally expensive. SQS breaks this bottleneck by utilizing **Instruction-Level Parallelism (ILP)**.
+Standard Post-Quantum algorithms are computationally expensive. SQS breaks this bottleneck by utilizing **Instruction-Level Parallelism (ILP)** and hardware-level vectorization.
 
 | Feature | Standard Implementation | Sovereign-Quantum-Vault |
 | :--- | :--- | :--- |
@@ -18,14 +18,17 @@ Standard Post-Quantum algorithms are computationally expensive. SQS breaks this 
 | **Architecture** | Scalar C++ | **Vectorized AVX-512** |
 
 ## 🛠️ Key Technical Features
-- **Hardware-Level Acceleration:** Uses `immintrin.h` to leverage 512-bit ZMM registers.
-- **Lattice-Based Optimization:** Specifically tuned for polynomial multiplication in Kyber-like algorithms.
-- **Zero-Dependency Core:** 100% C++20 for maximum portability and security auditing.
-- **Real-Time Readiness:** Optimized for sub-microsecond latency in financial and military-grade infrastructures.
+- **Hardware-Level Acceleration:** Leverages 512-bit **ZMM registers** via `immintrin.h` for maximum throughput.
+- **Lattice-Based Optimization:** Specifically tuned for polynomial multiplication, addressing the primary bottleneck in Kyber-class algorithms.
+- **ISA-Agnostic Vision:** While current core targets x86_64 (AVX-512), the architecture is designed for future migration to **RISC-V** vector extensions.
+- **Zero-Dependency Core:** Written in pure C++20, ensuring easy auditing for national security compliance.
 
-## 💻 Quick Start (Linux/GitHub Codespaces)
-To compile and benchmark the core with maximum hardware optimization:
+## 💻 Quick Start & Benchmarking
+To compile and benchmark the core with maximum hardware-level optimization, ensure your environment supports AVX-512:
 
 ```bash
-g++ -O3 -mavx2 src/SovereignQuantumVault.cpp -o SovereignVault
+# Compile with AVX-512 flags and O3 optimization
+g++ -O3 -mavx512f SovereignQuantumVault.cpp -o SovereignVault
+
+# Execute the benchmark
 ./SovereignVault
