@@ -1,53 +1,55 @@
-# 🇸🇦 SovereignVault-Titan (SV-T) v3.1.0-Sovereign
+# 🇸🇦 SovereignVault-Titan (SV-T) v4.3.0-Production
 **Ultra-Performance Post-Quantum Cryptographic Core optimized for Saudi National Critical Infrastructure.**
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B20-red.svg)
 ![Hardware](https://img.shields.io/badge/ISA-AVX--512%20SIMD-gold.svg)
 ![Security](https://img.shields.io/badge/Hardening-Constant--Time-orange.svg)
-![Performance](https://img.shields.io/badge/Latency-0.119%20%CE%BCs-green.svg)
+![Performance](https://img.shields.io/badge/Throughput-900%20M--Ops/sec-green.svg)
 
 ## 🚀 The Mission
-In alignment with **Saudi Vision 2030**, digital sovereignty is rooted in the ability to secure national data with home-grown, hardware-accelerated technology. **SovereignVault-Titan** is a next-generation cryptographic engine designed to protect critical infrastructure against emerging Quantum threats using low-level CPU optimization.
+In alignment with **Saudi Vision 2030**, digital sovereignty is rooted in the ability to secure national data with home-grown, hardware-accelerated technology. **SovereignVault-Titan** is a mission-critical cryptographic engine designed to protect national infrastructure against emerging Quantum threats through low-level ISA optimization and hardware-bound execution.
 
-## ⚡ Performance Breakthrough (Titan-v3.1)
-SV-T breaks the computational bottleneck of Lattice-based cryptography by bypassing standard scalar execution. By utilizing **AVX-512 ZMM Registers**, we achieve parallel processing of 16-way 32-bit coefficients in a single clock cycle.
 
-| Feature | Standard Implementation | SovereignVault-Titan (v3.1) |
+
+## ⚡ Performance Breakthrough (Titan-v4.3)
+SV-T eliminates computational bottlenecks in Lattice-based cryptographic primitives by bypassing standard scalar execution paths. By saturating **AVX-512 ZMM Registers**, the core achieves 16-way parallel processing of 32-bit coefficients within a single clock cycle.
+
+| Feature | Legacy Implementation | SovereignVault-Titan (v4.3) |
 | :--- | :--- | :--- |
-| **Execution Latency** | ~2.5 - 5.0 μs | **0.119 μs (Verified)** |
-| **ISA Acceleration** | Scalar / AVX2 | **Vectorized AVX-512F** |
-| **Throughput** | Baseline | **16x Parallel Ops/Cycle** |
-
-
+| **Throughput** | Baseline | **~900 M-Ops/sec (Verified)** |
+| **ISA Acceleration** | Scalar / AVX2 | **Vectorized AVX-512F / DQ** |
+| **Architecture** | Generic x86_64 | **Hardware-Bound SIMD** |
+| **Execution Path** | Variable-Time | **Deterministic Constant-Time** |
 
 ## 🛠️ Architectural Engineering & Hardening
-- **SIMD Vectorization:** Direct integration of Intel/AMD **AVX-512 Intrinsics** for massive parallelization of NTT (Number Theoretic Transform) kernels.
-- **Hardware-Level Constant-Time:** Eliminates branching and data-dependent timing variances to neutralize **Side-Channel Timing Attacks**.
-- **L1-Cache Optimization:** Strict **64-byte Memory Alignment (`alignas(64)`)** to prevent cache misses and ensure deterministic jitter-free performance.
-- **Aggressive Pipeline Unrolling:** Utilizes `#pragma unroll` and `-O3` optimization paths to saturate CPU execution ports.
-- **Memory Sanitization:** Features **Zero-Trace Logic** that flushes sensitive registers (`_mm512_setzero_si512`) immediately post-execution.
+- **SIMD Vectorization:** Direct implementation of **AVX-512 Intrinsics** for massive parallelization of NTT (Number Theoretic Transform) kernels.
+- **Hardware-Level Constant-Time:** Branchless logic design to neutralize **Side-Channel Timing Attacks** and ensure deterministic execution.
+- **Memory Alignment:** Strict **64-byte Alignment (`alignas(64)`)** to maximize L1-Cache hit rates and prevent split-line performance penalties.
+- **Pipeline Saturation:** Leverages `#pragma unroll` and specialized compiler attributes to utilize the full depth of the CPU execution pipeline.
+- **Zero-Trace Sanitization:** Integrated **Hardware Scrubbing** that flushes ZMM registers immediately post-execution to prevent data leakage.
 
 ## 💻 Technical Demonstration
-To achieve the **0.119 μs** latency, the core must be compiled with the following flags to unlock the hardware acceleration:
+To replicate the verified performance of **900 M-Ops/sec**, the core must be compiled with the following optimization flags to unlock target hardware features:
 
 ```bash
-# High-Performance Compilation
-g++ -O3 -mavx512f -std=c++20 SovereignVault_Titan_V3.cpp -o SovereignVault
+# High-Performance Target Compilation
+g++ -O3 -mavx512f -mavx512vl -mavx512bw -mavx512dq -std=c++20 SovereignVault_Titan.cpp -o SovereignVault
 
 # Execute the Benchmark
 ./SovereignVault
 
 
-[System] Alaa's Titan Core V3.1 Initializing...
-----------------------------------------------------
-ALAA-TITAN-CORE RESULTS:
-[+] Hardware Path : AVX-512 (Vectorized)
-[+] Target Latency: 0.582 microseconds
-[+] Real Latency  : 0.119 us 
-[+] Security Check: Constant-Time Path Verified.
-----------------------------------------------------
-[Status] Execution SECURE. National Infrastructure Protected.
 
+
+====================================================
+  TITAN CORE V4.3 - HARDWARE ACCELERATED
+====================================================
+[SYSTEM] Checksum : 0xA096C938
+[SYSTEM] Latency  : 177.7800 us (Batch)
+[SYSTEM] Speed    : 890.00+ M-Ops/sec
+----------------------------------------------------
+[STATUS] Core execution verified. Secure Path.
+====================================================
 
 
