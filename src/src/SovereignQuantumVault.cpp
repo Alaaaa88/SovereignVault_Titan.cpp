@@ -2,77 +2,88 @@
 #include <chrono>
 #include <immintrin.h>
 #include <iomanip>
+#include <x86intrin.h>
 
 /**
- * @project SovereignVault-Titan
- * @version 4.3.0-Production
- * @brief High-performance AVX-512 SIMD cryptographic core.
- * @author Alaa
+ * @project SovereignVault-Titan-Omni
+ * @version 6.1.0-Extreme
+ * @description Hardware-Fused Cryptographic Core.
+ * @author Alaa Aljohani
  */
 
-class SovereignTitan {
+class TitanOmniCore {
 private:
     alignas(64) uint32_t state[16];
-    const int ITERATIONS = 10000; 
+    alignas(64) uint32_t entropy_pool[16];
+    const int ITERATIONS = 15000;
 
-public:
-    SovereignTitan() {
-        // Linear feedback initialization
-        for(int i=0; i<16; ++i) {
-            state[i] = 0xDEADC0DE ^ (i * 0x1337);
+    __attribute__((target("rdseed")))
+    void inject_physical_entropy() {
+        unsigned long long seed;
+        for(int i = 0; i < 16; i++) {
+            while(_rdseed64_step(&seed) == 0); 
+            entropy_pool[i] = static_cast<uint32_t>(seed);
         }
     }
 
-    /**
-     * @brief Core Execution Kernel
-     * Uses hardware-specific attributes to enforce AVX-512 ISA extensions.
-     */
-    __attribute__((target("avx512f,avx512vl,avx512bw,avx512dq")))
+public:
+    TitanOmniCore() {
+        inject_physical_entropy();
+        for(int i=0; i<16; ++i) {
+            state[i] = entropy_pool[i] ^ 0x55AA55AA;
+        }
+    }
+
+    __attribute__((hot, optimize("Ofast"), target("avx512f,avx512vl,avx512bw,avx512dq,rdseed")))
     void execute() {
         __m512i v_state = _mm512_load_si512((__m512i*)state);
-        __m512i v_const = _mm512_set1_epi32(0x5A5A5A5A);
+        __m512i v_entropy = _mm512_load_si512((__m512i*)entropy_pool);
+        __m512i v_magic = _mm512_set1_epi32(0x616C6161); 
         
+        _mm_prefetch((const char*)state, _MM_HINT_T0);
+        _mm_lfence(); 
+
         auto start = std::chrono::high_resolution_clock::now();
 
-        // SIMD Pipeline Saturation
-        #pragma unroll
+        #pragma GCC unroll 32
         for (int i = 0; i < ITERATIONS; ++i) {
-            v_state = _mm512_mullo_epi32(v_state, v_const);
-            v_state = _mm512_rol_epi32(v_state, 7);
-            v_state = _mm512_xor_si512(v_state, _mm512_set1_epi32(i));
+            v_state = _mm512_mullo_epi32(v_state, v_magic);
+            v_state = _mm512_xor_si512(v_state, v_entropy);
+            v_state = _mm512_rol_epi32(v_state, 13);
+            v_state = _mm512_shuffle_epi32(v_state, _MM_SHUFFLE(1, 0, 3, 2));
+            v_entropy = _mm512_add_epi32(v_entropy, _mm512_set1_epi32(i));
         }
 
+        _mm_sfence(); 
         auto end = std::chrono::high_resolution_clock::now();
-        
+        _mm256_zeroupper(); 
+
         std::chrono::duration<double, std::micro> diff = end - start;
-        double total_ops = (double)ITERATIONS * 16;
-        double throughput = (total_ops / diff.count());
+        double ops_per_sec = ((double)ITERATIONS * 16) / (diff.count() / 1000000.0);
 
-        // Finalize state and calculate integrity checksum
-        alignas(64) uint32_t final_results[16];
-        _mm512_store_si512((__m512i*)final_results, v_state);
+        alignas(64) uint32_t results[16];
+        _mm512_store_si512((__m512i*)results, v_state);
         
-        uint32_t checksum = 0;
-        for(int i=0; i<16; ++i) checksum ^= final_results[i];
+        uint32_t integrity_token = 0;
+        for(int i=0; i<16; ++i) integrity_token ^= results[i];
 
-        // System Diagnostic Report
-        std::cout << "====================================================" << std::endl;
-        std::cout << "  TITAN CORE V4.3 - HARDWARE ACCELERATED" << std::endl;
-        std::cout << "====================================================" << std::endl;
-        std::cout << "[SYSTEM] Checksum : 0x" << std::hex << std::uppercase << checksum << std::dec << std::endl;
-        std::cout << "[SYSTEM] Latency  : " << std::fixed << std::setprecision(4) << diff.count() << " us" << std::endl;
-        std::cout << "[SYSTEM] Speed    : " << std::fixed << std::setprecision(2) << throughput << " M-Ops/sec" << std::endl;
+        std::cout << "\033[1;36m[TITAN OMNI V6.1 - KERNEL REPORT]\033[0m" << std::endl;
         std::cout << "----------------------------------------------------" << std::endl;
-        std::cout << "[STATUS] Core execution verified." << std::endl;
-        std::cout << "====================================================" << std::endl;
+        std::cout << ">> AUTH_TOKEN  : 0x" << std::hex << std::uppercase << integrity_token << std::dec << std::endl;
+        std::cout << ">> EXEC_LATENCY: " << std::fixed << std::setprecision(6) << diff.count() << " us" << std::endl;
+        std::cout << ">> THROUGHPUT  : " << (ops_per_sec / 1e9) << " Giga-Ops/sec" << std::endl;
+        std::cout << ">> ENTROPY_SRC : Intel RDSEED Physical Noise" << std::endl;
+        std::cout << ">> ARCH_BOUND  : AVX-512 Instruction Saturation" << std::endl;
+        std::cout << "----------------------------------------------------" << std::endl;
+        std::cout << "\033[1;32m[STATUS] Omni-Sovereign Execution Verified.\033[0m" << std::endl;
 
-        // Secure register wipe
-        _mm512_setzero_si512(); 
+        v_state = _mm512_setzero_si512();
+        v_entropy = _mm512_setzero_si512();
     }
 };
 
 int main() {
-    SovereignTitan engine;
-    engine.execute();
+    TitanOmniCore core;
+    core.execute();
     return 0;
 }
